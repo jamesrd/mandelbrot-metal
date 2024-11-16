@@ -6,8 +6,34 @@
 //
 
 import SwiftUI
+import MetalKit
 
-struct ContentView: View {
+struct ContentView: NSViewRepresentable {
+    
+    func makeCoordinator() -> Renderer {
+        Renderer(self)
+    }
+    
+    func makeNSView(context: NSViewRepresentableContext<ContentView>) -> MTKView {
+        let mtkView = MTKView()
+        mtkView.delegate = context.coordinator
+        mtkView.preferredFramesPerSecond = 60
+        mtkView.enableSetNeedsDisplay = true
+        
+        if let metalDevice = MTLCreateSystemDefaultDevice() {
+            mtkView.device = metalDevice
+        }
+        
+        mtkView.framebufferOnly = false
+        mtkView.drawableSize = mtkView.frame.size
+        
+        return mtkView
+    }
+    
+    func updateNSView(_ nsView: MTKView, context: NSViewRepresentableContext<ContentView>) {
+        
+    }
+    
     var body: some View {
         VStack {
             Image(systemName: "globe")
