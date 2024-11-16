@@ -20,7 +20,10 @@ vertex Fragment vertexShader(const device Vertex *vertexArray[[buffer(0)]], unsi
     
     Fragment output;
     output.position = float4(input.position.x, input.position.y, 0, 1);
-    output.color = input.color;
+    float r = input.position.x < 0 ? 1 : 0;
+    float g = input.position.y < 0 ? 1 : 0;
+    float b = input.position.x > 0 ? 1 : 0;
+    output.color = float4(r,g,b,1);
     
     return output;
 }
@@ -28,3 +31,4 @@ vertex Fragment vertexShader(const device Vertex *vertexArray[[buffer(0)]], unsi
 fragment float4 fragmentShader(Fragment input [[stage_in]]) {
     return input.color;
 }
+
