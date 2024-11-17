@@ -19,6 +19,7 @@ struct ContentView: NSViewRepresentable {
         mtkView.delegate = context.coordinator
         mtkView.preferredFramesPerSecond = 60
         mtkView.enableSetNeedsDisplay = true
+        mtkView.colorPixelFormat = .bgra8Unorm_srgb
         
         if let metalDevice = MTLCreateSystemDefaultDevice() {
             mtkView.device = metalDevice
@@ -33,16 +34,6 @@ struct ContentView: NSViewRepresentable {
     func updateNSView(_ nsView: MTKView, context: NSViewRepresentableContext<ContentView>) {
         
     }
-    
-//    var body: some View {
-//        VStack {
-//            Image(systemName: "globe")
-//                .imageScale(.large)
-//                .foregroundStyle(.tint)
-//            Text("Hello, world!")
-//        }
-//        .padding()
-//    }
 }
 
 #Preview {

@@ -22,4 +22,8 @@ struct Offset {
     float ratio;
 };
 
+struct MandelbrotControl {
+    int iter_steps;
+};
+
 #endif

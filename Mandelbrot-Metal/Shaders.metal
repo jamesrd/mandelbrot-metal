@@ -40,6 +40,20 @@ vertex Fragment vertexShader(const device Vertex *vertexArray[[buffer(0)]], cons
     return output;
 }
 
+float4 calculateColorGrayscale(int iteration, int iter_step) {
+    float r = 0, g = 0, b = 0;
+    float sd = iter_step * 1.0;
+    
+    if(iteration < iter_step * 3) {
+        float v = iteration / (sd * 3.0);
+        r = v;
+        g = v;
+        b = v;
+    }
+    
+    return float4(r,g,b,1);
+}
+
 float4 calculateColor(int iteration, int iter_step) {
     float r = 0, g = 0, b = 0;
     float sd = iter_step * 1.0;
@@ -56,9 +70,8 @@ float4 calculateColor(int iteration, int iter_step) {
     return float4(r,g,b,1);
 }
 
-fragment float4 fragmentShader(Fragment input [[stage_in]]) {
-    int iter_step = 100;
-    
-    int iteration = calculate(input.coords.x, input.coords.y, iter_step * 3);
-    return calculateColor(iteration, iter_step);
+fragment float4 fragmentShader(Fragment input [[stage_in]], const device MandelbrotControl &mc[[buffer(0)]]) {
+    int iteration = calculate(input.coords.x, input.coords.y, mc.iter_steps * 3);
+//    return calculateColorGrayscale(iteration, mc.iter_steps);
+    return calculateColor(iteration, mc.iter_steps);
 }

@@ -13,6 +13,7 @@ class Renderer: NSObject, MTKViewDelegate {
     var metalCommandQueue: MTLCommandQueue!
     let pipelineState: MTLRenderPipelineState
     let vertexBuffer: MTLBuffer
+    let fragmentBuffer: MTLBuffer
     var offset: Offset
     
     init(_ parent: ContentView) {
@@ -27,7 +28,7 @@ class Renderer: NSObject, MTKViewDelegate {
         let library = metalDevice.makeDefaultLibrary()
         pipelineDescriptor.vertexFunction = library?.makeFunction(name: "vertexShader")
         pipelineDescriptor.fragmentFunction = library?.makeFunction(name: "fragmentShader")
-        pipelineDescriptor.colorAttachments[0].pixelFormat = .bgra8Unorm
+        pipelineDescriptor.colorAttachments[0].pixelFormat = .bgra8Unorm_srgb
         
         do {
             try pipelineState = metalDevice.makeRenderPipelineState(descriptor: pipelineDescriptor)
@@ -46,7 +47,10 @@ class Renderer: NSObject, MTKViewDelegate {
         ]
         vertexBuffer = metalDevice.makeBuffer(bytes: vertices, length: vertices.count * MemoryLayout<Vertex>.stride, options: [])!
         
-        offset = Offset(x: -0.6, y: 0.0, scale: 1.2, ratio: 1.2)
+        var fb = MandelbrotControl(iter_steps: 256)
+        fragmentBuffer = metalDevice.makeBuffer(bytes: &fb, length: MemoryLayout<MandelbrotControl>.stride, options: [])!
+        
+        offset = Offset(x: -0.8, y: 0.0, scale: 0.3, ratio: 1.2)
         super.init()
     }
     
@@ -74,6 +78,7 @@ class Renderer: NSObject, MTKViewDelegate {
         
         let offsetBuffer = metalDevice.makeBuffer(bytes: &offset, length: MemoryLayout<Offset>.stride, options: [])!
         renderEncoder?.setVertexBuffer(offsetBuffer, offset: 0, index: 1)
+        renderEncoder?.setFragmentBuffer(fragmentBuffer, offset: 0, index: 0)
         
         renderEncoder?.drawPrimitives(type: .triangle, vertexStart: 0, vertexCount: 6)
 
