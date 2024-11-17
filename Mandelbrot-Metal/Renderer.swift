@@ -34,14 +34,19 @@ class Renderer: NSObject, MTKViewDelegate {
             fatalError()
         }
         
+        let left_x: Float = -2.4
+        let top_y: Float = 1.4
+        let right_x: Float = 1.2
+        let bottom_y: Float = -1.4
+        
         let vertices = [
-            Vertex(position: [-1,-1], color: [1,0,0,1]),
-            Vertex(position: [1,-1], color: [0,1,0,1]),
-            Vertex(position: [1,1], color: [0,0,1,1]),
+            Vertex(position: [left_x, top_y]),
+            Vertex(position: [left_x, bottom_y]),
+            Vertex(position: [right_x, top_y]),
             
-            Vertex(position: [1,1], color: [0,0,1,1]),
-            Vertex(position: [-1,1], color: [0,1,0,1]),
-            Vertex(position: [-1,-1], color: [1,0,0,1])
+            Vertex(position: [right_x, top_y]),
+            Vertex(position: [right_x, bottom_y]),
+            Vertex(position: [left_x, bottom_y])
         ]
         vertexBuffer = metalDevice.makeBuffer(bytes: vertices, length: vertices.count * MemoryLayout<Vertex>.stride, options: [])!
         super.init()
@@ -68,8 +73,8 @@ class Renderer: NSObject, MTKViewDelegate {
         
         renderEncoder?.setRenderPipelineState(pipelineState)
         renderEncoder?.setVertexBuffer(vertexBuffer, offset: 0, index: 0)
-        renderEncoder?.drawPrimitives(type: .triangle, vertexStart: 0, vertexCount: 3)
-        renderEncoder?.drawPrimitives(type: .triangle, vertexStart: 3, vertexCount: 3)
+        renderEncoder?.drawPrimitives(type: .triangle, vertexStart: 0, vertexCount: 6)
+//        renderEncoder?.drawPrimitives(type: .triangle, vertexStart: 3, vertexCount: 3)
 
         renderEncoder?.endEncoding()
         

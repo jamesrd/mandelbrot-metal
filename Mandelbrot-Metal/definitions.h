@@ -13,6 +13,5 @@
 
 struct Vertex {
     vector_float2 position;
-    vector_float4 color;
 };
 #endif
