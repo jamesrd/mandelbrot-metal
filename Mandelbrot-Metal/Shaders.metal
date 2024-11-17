@@ -38,22 +38,25 @@ vertex Fragment vertexShader(const device Vertex *vertexArray[[buffer(0)]], unsi
     return output;
 }
 
-fragment float4 fragmentShader(Fragment input [[stage_in]]) {
-    int max_iter = 256 * 3;
-    
-    int iteration = calculate(input.coords.x, input.coords.y, max_iter);
-    
+float4 calculateColor(int iteration, int iter_step) {
     float r = 0, g = 0, b = 0;
+    float sd = iter_step * 1.0;
     
-    if(iteration < max_iter) {
-        int ri = iteration % 256;
-        r = (ri / 256.0);
-        int gi = (iteration - 256) % 256;
-        g =  (gi / 256.0);
-        int bi = (iteration - 512) % 256;
-        b = (bi / 256.0);
+    if(iteration < iter_step * 3) {
+        int ri = iteration % iter_step;
+        r = (ri / sd);
+        int gi = (iteration - iter_step) % iter_step;
+        g =  (gi / sd);
+        int bi = (iteration - (iter_step * 2)) % iter_step;
+        b = (bi / sd);
     }
     
     return float4(r,g,b,1);
 }
 
+fragment float4 fragmentShader(Fragment input [[stage_in]]) {
+    int iter_step = 50;
+    
+    int iteration = calculate(input.coords.x, input.coords.y, iter_step * 3);
+    return calculateColor(iteration, iter_step);
+}
