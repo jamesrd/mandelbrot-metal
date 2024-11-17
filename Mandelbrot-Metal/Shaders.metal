@@ -27,13 +27,15 @@ int calculate(float x0, float y0, int max_iter) {
     return i;
 }
 
-vertex Fragment vertexShader(const device Vertex *vertexArray[[buffer(0)]], unsigned int vid [[vertex_id]]) {
+vertex Fragment vertexShader(const device Vertex *vertexArray[[buffer(0)]], const device Offset &offset[[buffer(1)]], unsigned int vid [[vertex_id]]) {
     Vertex input = vertexArray[vid];
     
     Fragment output;
     output.position = float4(input.position.x, input.position.y, 0, 1);
     
-    output.coords = float2(input.position.x - 0.6, input.position.y);
+    float x_scale = offset.ratio * offset.scale;
+    
+    output.coords = float2(input.position.x * x_scale + offset.x, input.position.y * offset.scale + offset.y);
     
     return output;
 }
@@ -55,7 +57,7 @@ float4 calculateColor(int iteration, int iter_step) {
 }
 
 fragment float4 fragmentShader(Fragment input [[stage_in]]) {
-    int iter_step = 50;
+    int iter_step = 100;
     
     int iteration = calculate(input.coords.x, input.coords.y, iter_step * 3);
     return calculateColor(iteration, iter_step);

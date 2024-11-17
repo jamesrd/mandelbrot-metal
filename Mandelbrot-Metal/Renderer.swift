@@ -13,6 +13,7 @@ class Renderer: NSObject, MTKViewDelegate {
     var metalCommandQueue: MTLCommandQueue!
     let pipelineState: MTLRenderPipelineState
     let vertexBuffer: MTLBuffer
+    var offset: Offset
     
     init(_ parent: ContentView) {
         
@@ -34,26 +35,23 @@ class Renderer: NSObject, MTKViewDelegate {
             fatalError()
         }
         
-        let left_x: Float = -2.4
-        let top_y: Float = 1.4
-        let right_x: Float = 1.2
-        let bottom_y: Float = -1.4
+        let top_left = Vertex(position: [-1.0, 1.0])
+        let bottom_left = Vertex(position: [-1.0, -1.0])
+        let top_right = Vertex(position: [1.0, 1.0])
+        let bottom_right = Vertex(position: [1.0, -1.0])
         
         let vertices = [
-            Vertex(position: [left_x, top_y]),
-            Vertex(position: [left_x, bottom_y]),
-            Vertex(position: [right_x, top_y]),
-            
-            Vertex(position: [right_x, top_y]),
-            Vertex(position: [right_x, bottom_y]),
-            Vertex(position: [left_x, bottom_y])
+            top_left, bottom_left, top_right,
+            top_right, bottom_right, bottom_left
         ]
         vertexBuffer = metalDevice.makeBuffer(bytes: vertices, length: vertices.count * MemoryLayout<Vertex>.stride, options: [])!
+        
+        offset = Offset(x: -0.6, y: 0.0, scale: 1.2, ratio: 1.2)
         super.init()
     }
     
     func mtkView(_ view: MTKView, drawableSizeWillChange size: CGSize) {
-        
+        offset.ratio = Float(size.width) / Float(size.height)
     }
     
     func draw(in view: MTKView) {
@@ -73,8 +71,11 @@ class Renderer: NSObject, MTKViewDelegate {
         
         renderEncoder?.setRenderPipelineState(pipelineState)
         renderEncoder?.setVertexBuffer(vertexBuffer, offset: 0, index: 0)
+        
+        let offsetBuffer = metalDevice.makeBuffer(bytes: &offset, length: MemoryLayout<Offset>.stride, options: [])!
+        renderEncoder?.setVertexBuffer(offsetBuffer, offset: 0, index: 1)
+        
         renderEncoder?.drawPrimitives(type: .triangle, vertexStart: 0, vertexCount: 6)
-//        renderEncoder?.drawPrimitives(type: .triangle, vertexStart: 3, vertexCount: 3)
 
         renderEncoder?.endEncoding()
         
