@@ -50,7 +50,7 @@ class Renderer: NSObject, MTKViewDelegate {
         var fb = MandelbrotControl(iter_steps: 256)
         fragmentBuffer = metalDevice.makeBuffer(bytes: &fb, length: MemoryLayout<MandelbrotControl>.stride, options: [])!
         
-        offset = Offset(x: -0.8, y: 0.0, scale: 0.3, ratio: 1.2)
+        offset = Offset(x: -0.8, y: 0.0, scale: 0.9, ratio: 1.2)
         super.init()
     }
     

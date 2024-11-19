@@ -16,7 +16,6 @@ class MandelbrotView: MTKView {
             return
         }
         renderer.offset.scale = renderer.offset.scale * 0.90
-        print(renderer.offset.scale)
         self.draw()
     }
     
@@ -25,7 +24,6 @@ class MandelbrotView: MTKView {
             return
         }
         renderer.offset.scale = renderer.offset.scale * 1.10
-        print(renderer.offset.scale)
         self.draw()
     }
     
@@ -33,11 +31,9 @@ class MandelbrotView: MTKView {
         guard var offset = mandelbrot?.offset else {
             return
         }
-        let m = offset.scale * 0.01
+        let m = offset.scale * 0.004
         offset.x = offset.x + (Float(event.scrollingDeltaX) * m * -1)
         offset.y = offset.y + (Float(event.scrollingDeltaY) * m)
-        print(offset.x)
-        print(offset.y)
         mandelbrot?.offset = offset
         self.draw()
     }
