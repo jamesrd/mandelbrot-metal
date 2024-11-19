@@ -15,8 +15,9 @@ struct ContentView: NSViewRepresentable {
     }
     
     func makeNSView(context: NSViewRepresentableContext<ContentView>) -> MTKView {
-        let mtkView = MTKView()
+        let mtkView = MandelbrotView()
         mtkView.delegate = context.coordinator
+        mtkView.mandelbrot = context.coordinator
         mtkView.preferredFramesPerSecond = 60
         mtkView.enableSetNeedsDisplay = true
         mtkView.colorPixelFormat = .bgra8Unorm_srgb
@@ -32,8 +33,9 @@ struct ContentView: NSViewRepresentable {
     }
     
     func updateNSView(_ nsView: MTKView, context: NSViewRepresentableContext<ContentView>) {
-        
     }
+    
+    
 }
 
 #Preview {
