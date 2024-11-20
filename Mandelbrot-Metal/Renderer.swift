@@ -47,7 +47,7 @@ class Renderer: NSObject, MTKViewDelegate {
         ]
         vertexBuffer = metalDevice.makeBuffer(bytes: vertices, length: vertices.count * MemoryLayout<Vertex>.stride, options: [])!
         
-        var fb = MandelbrotControl(iter_steps: 256)
+        var fb = MandelbrotControl(max_iter: 768)
         fragmentBuffer = metalDevice.makeBuffer(bytes: &fb, length: MemoryLayout<MandelbrotControl>.stride, options: [])!
         
         offset = Offset(x: -0.8, y: 0.0, scale: 0.9, ratio: 1.2)

@@ -40,12 +40,47 @@ vertex Fragment vertexShader(const device Vertex *vertexArray[[buffer(0)]], cons
     return output;
 }
 
-float4 calculateColorGrayscale(int iteration, int iter_step) {
+float4 hsvToRgb(float h, float s, float v) {
     float r = 0, g = 0, b = 0;
-    float sd = iter_step * 1.0;
+    float c = v * s;
+    float hp = h/60;
+    float x = c * (1 - abs(fmod(hp, 2.0) - 1));
+    float m = v - c;
+    if(0 <= hp && hp < 1) {
+        r = c;
+        g = x;
+        b = 0;
+    } else if(hp < 2) {
+        r = x;
+        g = c;
+        b = 0;
+    } else if(hp < 3) {
+        r = 0;
+        g = c;
+        b = x;
+    } else if(hp < 4) {
+        r = 0;
+        g = x;
+        b = c;
+    } else if(hp < 5) {
+        r = x;
+        g = 0;
+        b = c;
+    } else if(hp < 6) {
+        r = c;
+        g = 0;
+        b = x;
+    }
     
-    if(iteration < iter_step * 3) {
-        float v = iteration / (sd * 3.0);
+    return float4(r+m, g+m, b+m, 1);
+}
+
+float4 calculateColorGrayscale(int iteration, int max_iter) {
+    float r = 0, g = 0, b = 0;
+    float sd = max_iter * 1.0;
+    
+    if(iteration < max_iter) {
+        float v = iteration / sd;
         r = v;
         g = v;
         b = v;
@@ -54,11 +89,24 @@ float4 calculateColorGrayscale(int iteration, int iter_step) {
     return float4(r,g,b,1);
 }
 
-float4 calculateColor(int iteration, int iter_step) {
+float4 calculateColor(int iteration, int max_iter) {
+    if(iteration >= max_iter) {
+        return float4(0,0,0,1);
+    }
+    float mif = max_iter * 1.0;
+    float h = fmod(pow(iteration/mif * 360, 1.5), 360.0);
+    float s = 1.0;
+    float v = (iteration/mif);
+    
+    return hsvToRgb(h, s, v);
+}
+
+float4 calculateColor_old(int iteration, int max_iter) {
     float r = 0, g = 0, b = 0;
+    int iter_step = max_iter / 3;
     float sd = iter_step * 1.0;
     
-    if(iteration < iter_step * 3) {
+    if(iteration < max_iter) {
         int ri = iteration % iter_step;
         r = (ri / sd);
         int gi = (iteration - iter_step) % iter_step;
@@ -71,7 +119,7 @@ float4 calculateColor(int iteration, int iter_step) {
 }
 
 fragment float4 fragmentShader(Fragment input [[stage_in]], const device MandelbrotControl &mc[[buffer(0)]]) {
-    int iteration = calculate(input.coords.x, input.coords.y, mc.iter_steps * 3);
+    int iteration = calculate(input.coords.x, input.coords.y, mc.max_iter);
 //    return calculateColorGrayscale(iteration, mc.iter_steps);
-    return calculateColor(iteration, mc.iter_steps);
+    return calculateColor(iteration, mc.max_iter);
 }

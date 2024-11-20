@@ -23,7 +23,7 @@ struct Offset {
 };
 
 struct MandelbrotControl {
-    int iter_steps;
+    int max_iter;
 };
 
 #endif
