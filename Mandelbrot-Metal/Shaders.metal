@@ -33,9 +33,7 @@ vertex Fragment vertexShader(const device Vertex *vertexArray[[buffer(0)]], cons
     Fragment output;
     output.position = float4(input.position.x, input.position.y, 0, 1);
     
-    float x_scale = offset.ratio * offset.scale;
-    
-    output.coords = float2(input.position.x * x_scale + offset.x, input.position.y * offset.scale + offset.y);
+    output.coords = float2(input.position.x * offset.x_scale + offset.x, input.position.y * offset.y_scale + offset.y);
     
     return output;
 }

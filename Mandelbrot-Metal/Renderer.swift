@@ -7,6 +7,10 @@
 import MetalKit
 
 class Renderer: NSObject, MTKViewDelegate {
+    let start_x: Float = -0.8
+    let start_y: Float  = 0.0
+    let start_width = 3.6
+    
     
     var parent: ContentView
     var metalDevice: MTLDevice!
@@ -17,9 +21,10 @@ class Renderer: NSObject, MTKViewDelegate {
     var offset: Offset
     
     func resetOffset() {
-        offset.x = -0.8
-        offset.y = 0.0
-        offset.scale = 0.9
+        offset.x = start_x
+        offset.y = start_y
+        offset.x_scale = 1.1
+        offset.y_scale = 0.9
     }
     
     init(_ parent: ContentView) {
@@ -56,12 +61,12 @@ class Renderer: NSObject, MTKViewDelegate {
         var fb = MandelbrotControl(max_iter: 768)
         fragmentBuffer = metalDevice.makeBuffer(bytes: &fb, length: MemoryLayout<MandelbrotControl>.stride, options: [])!
         
-        offset = Offset(x: -0.8, y: 0.0, scale: 0.9, ratio: 1.2)
+        offset = Offset(x: start_x, y: start_y, x_scale: 1.1, y_scale: 0.9)
         super.init()
     }
     
     func mtkView(_ view: MTKView, drawableSizeWillChange size: CGSize) {
-        offset.ratio = Float(size.width) / Float(size.height)
+//        offset.ratio = Float(size.width) / Float(size.height)
     }
     
     func draw(in view: MTKView) {

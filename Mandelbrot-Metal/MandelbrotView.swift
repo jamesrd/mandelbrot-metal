@@ -49,7 +49,8 @@ class MandelbrotView: MTKView {
         
         print("New center \(cx), \(cy) zoom \(z)")
         recenter(cx: cx, cy: cy, windowSize: windowSize)
-        renderer.offset.scale = renderer.offset.scale * z
+        renderer.offset.x_scale *= z
+        renderer.offset.y_scale *= z
         self.draw()
     }
     
@@ -59,8 +60,8 @@ class MandelbrotView: MTKView {
         let dy = Float((cy - (windowSize.height / 2)) / windowSize.height)
         print("Center offset \(dx), \(dy)  from \(windowSize)")
         if let renderer = mandelbrot {
-            let yt = renderer.offset.scale * 2
-            let xt = yt * renderer.offset.ratio
+            let yt = renderer.offset.y_scale * 2
+            let xt = renderer.offset.x_scale * 2
             renderer.offset.x += dx * xt
             renderer.offset.y += dy * yt
         }
@@ -70,7 +71,8 @@ class MandelbrotView: MTKView {
         guard let renderer = mandelbrot else {
             return
         }
-        renderer.offset.scale = renderer.offset.scale * 1.10
+        renderer.offset.x_scale *= 1.10
+        renderer.offset.y_scale *= 1.10
         self.draw()
     }
     
@@ -78,9 +80,10 @@ class MandelbrotView: MTKView {
         guard var offset = mandelbrot?.offset else {
             return
         }
-        let m = offset.scale * 0.004
-        offset.x = offset.x + (Float(event.scrollingDeltaX) * m * -1)
-        offset.y = offset.y + (Float(event.scrollingDeltaY) * m)
+        let m_x = offset.x_scale * -0.004
+        let m_y = offset.y_scale * 0.004
+        offset.x = offset.x + (Float(event.scrollingDeltaX) * m_x)
+        offset.y = offset.y + (Float(event.scrollingDeltaY) * m_y)
         mandelbrot?.offset = offset
         self.draw()
     }

@@ -18,8 +18,8 @@ struct Vertex {
 struct Offset {
     float x;
     float y;
-    float scale;
-    float ratio;
+    float x_scale;
+    float y_scale;
 };
 
 struct MandelbrotControl {
