@@ -96,7 +96,7 @@ float4 calculateColor(int iteration, int max_iter) {
     float mif = max_iter * 1.0;
     float h = fmod(pow(iteration/mif * 360, 1.5), 360.0);
     float s = 1.0;
-    float v = (iteration/mif);
+    float v = (iteration/mif) * 1.0;
     
     return hsvToRgb(h, s, v);
 }

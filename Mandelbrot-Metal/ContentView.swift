@@ -14,10 +14,11 @@ struct ContentView: NSViewRepresentable {
         Renderer(self)
     }
     
-    func makeNSView(context: NSViewRepresentableContext<ContentView>) -> MTKView {
+    func makeNSView(context: NSViewRepresentableContext<ContentView>) -> MandelbrotView {
         let mtkView = MandelbrotView()
-        mtkView.delegate = context.coordinator
-        mtkView.mandelbrot = context.coordinator
+        let coordinator = context.coordinator
+        mtkView.mandelbrot = coordinator
+        mtkView.delegate = coordinator
         mtkView.preferredFramesPerSecond = 60
         mtkView.enableSetNeedsDisplay = true
         mtkView.colorPixelFormat = .bgra8Unorm_srgb
@@ -32,10 +33,8 @@ struct ContentView: NSViewRepresentable {
         return mtkView
     }
     
-    func updateNSView(_ nsView: MTKView, context: NSViewRepresentableContext<ContentView>) {
+    func updateNSView(_ nsView: MandelbrotView, context: NSViewRepresentableContext<ContentView>) {
     }
-    
-    
 }
 
 #Preview {

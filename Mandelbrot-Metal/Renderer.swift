@@ -16,6 +16,12 @@ class Renderer: NSObject, MTKViewDelegate {
     let fragmentBuffer: MTLBuffer
     var offset: Offset
     
+    func resetOffset() {
+        offset.x = -0.8
+        offset.y = 0.0
+        offset.scale = 0.9
+    }
+    
     init(_ parent: ContentView) {
         
         self.parent = parent
