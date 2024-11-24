@@ -9,6 +9,12 @@ import SwiftUI
 import MetalKit
 
 struct ContentView: NSViewRepresentable {
+    @Environment(RendererData.self) var rendererData
+    // plans:
+    // - Move control of what region to draw to higher level code
+    // - Learn how to correctly develop event handling
+    // - Animation??
+    // - Live color plotting changes
     
     func makeCoordinator() -> Renderer {
         Renderer(self)
@@ -17,7 +23,7 @@ struct ContentView: NSViewRepresentable {
     func makeNSView(context: NSViewRepresentableContext<ContentView>) -> MandelbrotView {
         let mtkView = MandelbrotView()
         let coordinator = context.coordinator
-        mtkView.mandelbrot = coordinator
+        mtkView.rendererData = rendererData
         mtkView.delegate = coordinator
         mtkView.preferredFramesPerSecond = 60
         mtkView.enableSetNeedsDisplay = true
@@ -34,9 +40,11 @@ struct ContentView: NSViewRepresentable {
     }
     
     func updateNSView(_ nsView: MandelbrotView, context: NSViewRepresentableContext<ContentView>) {
+        print("updateNSView")
     }
 }
 
 #Preview {
     ContentView()
+        .environment(RendererData())
 }

@@ -6,11 +6,11 @@
 //
 
 import MetalKit
+import SwiftUICore
 
 class MandelbrotView: MTKView {
-    
-    var mandelbrot: Renderer?
-    
+    var rendererData: RendererData?
+
     private var dragStart: NSPoint?
     
     override var acceptsFirstResponder: Bool {
@@ -22,10 +22,6 @@ class MandelbrotView: MTKView {
     }
     
     override func mouseUp(with event: NSEvent) {
-        guard let renderer = mandelbrot else {
-            dragStart = nil
-            return
-        }
         guard let windowSize = event.window?.frame.size else {
             dragStart = nil
             return
@@ -49,8 +45,8 @@ class MandelbrotView: MTKView {
         
         print("New center \(cx), \(cy) zoom \(z)")
         recenter(cx: cx, cy: cy, windowSize: windowSize)
-        renderer.offset.x_scale *= z
-        renderer.offset.y_scale *= z
+        rendererData?.x_scale *= z
+        rendererData?.y_scale *= z
         self.draw()
     }
     
@@ -59,43 +55,31 @@ class MandelbrotView: MTKView {
         let dx = Float((cx - (windowSize.width / 2)) / windowSize.width)
         let dy = Float((cy - (windowSize.height / 2)) / windowSize.height)
         print("Center offset \(dx), \(dy)  from \(windowSize)")
-        if let renderer = mandelbrot {
-            let yt = renderer.offset.y_scale * 2
-            let xt = renderer.offset.x_scale * 2
-            renderer.offset.x += dx * xt
-            renderer.offset.y += dy * yt
-        }
+        let yt = rendererData!.y_scale * 2
+        let xt = rendererData!.x_scale * 2
+        rendererData?.x += dx * xt
+        rendererData?.y += dy * yt
     }
     
     override func rightMouseUp(with event: NSEvent) {
-        guard let renderer = mandelbrot else {
-            return
-        }
-        renderer.offset.x_scale *= 1.10
-        renderer.offset.y_scale *= 1.10
+        rendererData!.x_scale *= 1.10
+        rendererData!.y_scale *= 1.10
         self.draw()
     }
     
     override func scrollWheel(with event: NSEvent) {
-        guard var offset = mandelbrot?.offset else {
-            return
-        }
-        let m_x = offset.x_scale * -0.004
-        let m_y = offset.y_scale * 0.004
-        offset.x = offset.x + (Float(event.scrollingDeltaX) * m_x)
-        offset.y = offset.y + (Float(event.scrollingDeltaY) * m_y)
-        mandelbrot?.offset = offset
+        let m_x = rendererData!.x_scale * -0.004
+        let m_y = rendererData!.y_scale * 0.004
+        rendererData?.x += (Float(event.scrollingDeltaX) * m_x)
+        rendererData?.y += (Float(event.scrollingDeltaY) * m_y)
         self.draw()
     }
     
     override func keyUp(with event: NSEvent) {
-        print(event.keyCode)
         if(event.keyCode == 24) {
-            guard let renderer = mandelbrot else {
-                return
-            }
-            renderer.resetOffset() // also need to reset the ratio
+            rendererData!.reset()
             self.draw()
+            print(event.keyCode)
         }
     }
     

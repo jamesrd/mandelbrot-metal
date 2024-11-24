@@ -5,26 +5,42 @@
 //  Created by James Devries on 11/16/24.
 //
 import MetalKit
+import SwiftUICore
+
+@Observable
+class RendererData {
+    var x: Float = 0.0
+    var y: Float = 0.0
+    var width: Float = 0.0
+    var max_iter: Int32 = 768
+    var x_scale: Float = 1.1
+    var y_scale: Float = 0.9
+
+    init() {
+        self.reset()
+    }
+    
+    func reset() {
+        x = -0.8
+        y = 0.0
+        width = 3.6
+        max_iter = 768
+        x_scale = 1.1
+        y_scale = 0.9
+    }
+}
 
 class Renderer: NSObject, MTKViewDelegate {
-    let start_x: Float = -0.8
-    let start_y: Float  = 0.0
-    let start_width = 3.6
-    
+    var rendererData: RendererData
     
     var parent: ContentView
     var metalDevice: MTLDevice!
     var metalCommandQueue: MTLCommandQueue!
     let pipelineState: MTLRenderPipelineState
     let vertexBuffer: MTLBuffer
-    let fragmentBuffer: MTLBuffer
-    var offset: Offset
     
     func resetOffset() {
-        offset.x = start_x
-        offset.y = start_y
-        offset.x_scale = 1.1
-        offset.y_scale = 0.9
+        rendererData.reset()
     }
     
     init(_ parent: ContentView) {
@@ -58,10 +74,8 @@ class Renderer: NSObject, MTKViewDelegate {
         ]
         vertexBuffer = metalDevice.makeBuffer(bytes: vertices, length: vertices.count * MemoryLayout<Vertex>.stride, options: [])!
         
-        var fb = MandelbrotControl(max_iter: 768)
-        fragmentBuffer = metalDevice.makeBuffer(bytes: &fb, length: MemoryLayout<MandelbrotControl>.stride, options: [])!
+        rendererData = parent.rendererData
         
-        offset = Offset(x: start_x, y: start_y, x_scale: 1.1, y_scale: 0.9)
         super.init()
     }
     
@@ -87,8 +101,12 @@ class Renderer: NSObject, MTKViewDelegate {
         renderEncoder?.setRenderPipelineState(pipelineState)
         renderEncoder?.setVertexBuffer(vertexBuffer, offset: 0, index: 0)
         
+        var offset = Offset(x: rendererData.x, y: rendererData.y, x_scale: rendererData.x_scale, y_scale: rendererData.y_scale)
         let offsetBuffer = metalDevice.makeBuffer(bytes: &offset, length: MemoryLayout<Offset>.stride, options: [])!
         renderEncoder?.setVertexBuffer(offsetBuffer, offset: 0, index: 1)
+        
+        var fb = MandelbrotControl(max_iter: rendererData.max_iter)
+        let fragmentBuffer = metalDevice.makeBuffer(bytes: &fb, length: MemoryLayout<MandelbrotControl>.stride, options: [])!
         renderEncoder?.setFragmentBuffer(fragmentBuffer, offset: 0, index: 0)
         
         renderEncoder?.drawPrimitives(type: .triangle, vertexStart: 0, vertexCount: 6)
