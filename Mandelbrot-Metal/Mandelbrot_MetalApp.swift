@@ -9,12 +9,9 @@ import SwiftUI
 
 @main
 struct Mandelbrot_MetalApp: App {
-    @State private var rendererData = RendererData()
-    
     var body: some Scene {
         WindowGroup {
             ContentView()
-                .environment(rendererData)
         }
     }
 }

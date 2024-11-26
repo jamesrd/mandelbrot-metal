@@ -8,8 +8,11 @@
 import SwiftUI
 import MetalKit
 
-struct ContentView: NSViewRepresentable {
-    @Environment(RendererData.self) var rendererData
+struct MandelbrotView2: NSViewRepresentable {
+    @Binding var rendererData: RendererData
+    
+    let mtkView: MandelbrotView = MandelbrotView()
+    
     // plans:
     // - Move control of what region to draw to higher level code
     // - Learn how to correctly develop event handling
@@ -20,11 +23,9 @@ struct ContentView: NSViewRepresentable {
         Renderer(self)
     }
     
-    func makeNSView(context: NSViewRepresentableContext<ContentView>) -> MandelbrotView {
-        let mtkView = MandelbrotView()
-        let coordinator = context.coordinator
-        mtkView.rendererData = rendererData
-        mtkView.delegate = coordinator
+    func makeNSView(context: NSViewRepresentableContext<MandelbrotView2>) -> MandelbrotView {
+        mtkView.rendererData = $rendererData
+        mtkView.delegate = context.coordinator
         mtkView.preferredFramesPerSecond = 60
         mtkView.enableSetNeedsDisplay = true
         mtkView.colorPixelFormat = .bgra8Unorm_srgb
@@ -39,12 +40,29 @@ struct ContentView: NSViewRepresentable {
         return mtkView
     }
     
-    func updateNSView(_ nsView: MandelbrotView, context: NSViewRepresentableContext<ContentView>) {
-        print("updateNSView")
+    func updateNSView(_ nsView: MandelbrotView, context: NSViewRepresentableContext<MandelbrotView2>) {
+        print("Update NSView")
+        nsView.draw()
+    }
+}
+
+struct ContentView: View {
+    @State private var model = RendererData()
+    
+    var body: some View {
+        VStack {
+            Text("center: \(model.x),\(model.y) width: \(model.width)")
+            MandelbrotView2(rendererData: $model)
+                .environment(model)
+                .onKeyPress(keys: ["="]) { press in
+                    print("keypress")
+                    model.reset()
+                    return .handled
+                }
+        }
     }
 }
 
 #Preview {
     ContentView()
-        .environment(RendererData())
 }

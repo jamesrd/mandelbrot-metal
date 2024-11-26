@@ -5,35 +5,11 @@
 //  Created by James Devries on 11/16/24.
 //
 import MetalKit
-import SwiftUICore
-
-@Observable
-class RendererData {
-    var x: Float = 0.0
-    var y: Float = 0.0
-    var width: Float = 0.0
-    var max_iter: Int32 = 768
-    var x_scale: Float = 1.1
-    var y_scale: Float = 0.9
-
-    init() {
-        self.reset()
-    }
-    
-    func reset() {
-        x = -0.8
-        y = 0.0
-        width = 3.6
-        max_iter = 768
-        x_scale = 1.1
-        y_scale = 0.9
-    }
-}
 
 class Renderer: NSObject, MTKViewDelegate {
     var rendererData: RendererData
     
-    var parent: ContentView
+    var parent: MandelbrotView2
     var metalDevice: MTLDevice!
     var metalCommandQueue: MTLCommandQueue!
     let pipelineState: MTLRenderPipelineState
@@ -43,8 +19,7 @@ class Renderer: NSObject, MTKViewDelegate {
         rendererData.reset()
     }
     
-    init(_ parent: ContentView) {
-        
+    init(_ parent: MandelbrotView2) {
         self.parent = parent
         if let metalDevice = MTLCreateSystemDefaultDevice() {
             self.metalDevice = metalDevice
@@ -80,7 +55,7 @@ class Renderer: NSObject, MTKViewDelegate {
     }
     
     func mtkView(_ view: MTKView, drawableSizeWillChange size: CGSize) {
-//        offset.ratio = Float(size.width) / Float(size.height)
+        rendererData.ratio = Float(size.height / size.width)
     }
     
     func draw(in view: MTKView) {
@@ -101,7 +76,10 @@ class Renderer: NSObject, MTKViewDelegate {
         renderEncoder?.setRenderPipelineState(pipelineState)
         renderEncoder?.setVertexBuffer(vertexBuffer, offset: 0, index: 0)
         
-        var offset = Offset(x: rendererData.x, y: rendererData.y, x_scale: rendererData.x_scale, y_scale: rendererData.y_scale)
+        let x_scale = rendererData.width * 0.305
+        let y_scale = x_scale * rendererData.ratio
+        
+        var offset = Offset(x: rendererData.x, y: rendererData.y, x_scale: x_scale, y_scale: y_scale)
         let offsetBuffer = metalDevice.makeBuffer(bytes: &offset, length: MemoryLayout<Offset>.stride, options: [])!
         renderEncoder?.setVertexBuffer(offsetBuffer, offset: 0, index: 1)
         

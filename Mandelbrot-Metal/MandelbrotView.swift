@@ -9,7 +9,7 @@ import MetalKit
 import SwiftUICore
 
 class MandelbrotView: MTKView {
-    var rendererData: RendererData?
+    var rendererData: Binding<RendererData>?
 
     private var dragStart: NSPoint?
     
@@ -45,8 +45,7 @@ class MandelbrotView: MTKView {
         
         print("New center \(cx), \(cy) zoom \(z)")
         recenter(cx: cx, cy: cy, windowSize: windowSize)
-        rendererData?.x_scale *= z
-        rendererData?.y_scale *= z
+        rendererData!.wrappedValue.width *= z
         self.draw()
     }
     
@@ -55,32 +54,29 @@ class MandelbrotView: MTKView {
         let dx = Float((cx - (windowSize.width / 2)) / windowSize.width)
         let dy = Float((cy - (windowSize.height / 2)) / windowSize.height)
         print("Center offset \(dx), \(dy)  from \(windowSize)")
-        let yt = rendererData!.y_scale * 2
-        let xt = rendererData!.x_scale * 2
-        rendererData?.x += dx * xt
-        rendererData?.y += dy * yt
+        rendererData!.wrappedValue.x += dx * rendererData!.wrappedValue.width
+        rendererData!.wrappedValue.y += dy * rendererData!.wrappedValue.width * rendererData!.wrappedValue.ratio
     }
     
     override func rightMouseUp(with event: NSEvent) {
-        rendererData!.x_scale *= 1.10
-        rendererData!.y_scale *= 1.10
+        rendererData!.wrappedValue.width *= 1.10
         self.draw()
     }
     
     override func scrollWheel(with event: NSEvent) {
-        let m_x = rendererData!.x_scale * -0.004
-        let m_y = rendererData!.y_scale * 0.004
-        rendererData?.x += (Float(event.scrollingDeltaX) * m_x)
-        rendererData?.y += (Float(event.scrollingDeltaY) * m_y)
+        let m_x = rendererData!.wrappedValue.width * -0.004
+        let m_y = rendererData!.wrappedValue.width * rendererData!.wrappedValue.ratio * 0.004
+        rendererData!.wrappedValue.x += (Float(event.scrollingDeltaX) * m_x)
+        rendererData!.wrappedValue.y += (Float(event.scrollingDeltaY) * m_y)
         self.draw()
     }
     
-    override func keyUp(with event: NSEvent) {
-        if(event.keyCode == 24) {
-            rendererData!.reset()
-            self.draw()
-            print(event.keyCode)
-        }
-    }
+//    override func keyUp(with event: NSEvent) {
+//        if(event.keyCode == 24) {
+//            rendererData!.reset()
+//            self.draw()
+//            print(event.keyCode)
+//        }
+//    }
     
 }
