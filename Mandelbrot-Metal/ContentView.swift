@@ -16,23 +16,7 @@ struct ContentView: View {
         VStack {
             Text("center: \(model.x),\(model.y) width: \(model.width)")
             MandelbrotView(rendererData: $model)
-                .onKeyPress(keys: ["="]) { press in
-                    print("keypress")
-                    model.reset()
-                    return .handled
-                }
-                .onAppear(perform: {
-                    NSEvent.addLocalMonitorForEvents(matching: [.leftMouseDown]) { event in
-                            print ("mouse down")
-                        
-                       return event
-                    }
-                    NSEvent.addLocalMonitorForEvents(matching: [.leftMouseUp]) { event in
-                        print ("mouse up")
-                        
-                        return event
-                    }
-                })
+                .modifier(MandelbrotViewModifier(rendererData: $model))
         }
     }
 }
