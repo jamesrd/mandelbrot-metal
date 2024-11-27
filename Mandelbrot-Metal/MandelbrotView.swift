@@ -7,8 +7,47 @@
 
 import MetalKit
 import SwiftUICore
+import SwiftUI
 
-class MandelbrotView: MTKView {
+struct MandelbrotView: NSViewRepresentable {
+    @Binding var rendererData: RendererData
+    
+    let mtkView: MandelbrotMTKView = MandelbrotMTKView()
+    
+    // plans:
+    // - Move control of what region to draw to higher level code
+    // - Learn how to correctly develop event handling
+    // - Animation??
+    // - Live color plotting changes
+    
+    func makeCoordinator() -> Renderer {
+        Renderer(self)
+    }
+    
+    func makeNSView(context: NSViewRepresentableContext<MandelbrotView>) -> MandelbrotMTKView {
+        mtkView.rendererData = $rendererData
+        mtkView.delegate = context.coordinator
+        mtkView.preferredFramesPerSecond = 60
+        mtkView.enableSetNeedsDisplay = true
+        mtkView.colorPixelFormat = .bgra8Unorm_srgb
+        
+        if let metalDevice = MTLCreateSystemDefaultDevice() {
+            mtkView.device = metalDevice
+        }
+        
+        mtkView.framebufferOnly = false
+        mtkView.drawableSize = mtkView.frame.size
+        
+        return mtkView
+    }
+    
+    func updateNSView(_ nsView: MandelbrotMTKView, context: NSViewRepresentableContext<MandelbrotView>) {
+        print("Update NSView")
+        nsView.draw()
+    }
+}
+
+class MandelbrotMTKView: MTKView {
     var rendererData: Binding<RendererData>?
 
     private var dragStart: NSPoint?
@@ -46,7 +85,6 @@ class MandelbrotView: MTKView {
         print("New center \(cx), \(cy) zoom \(z)")
         recenter(cx: cx, cy: cy, windowSize: windowSize)
         rendererData!.wrappedValue.width *= z
-        self.draw()
     }
     
     private func recenter(cx: CGFloat, cy: CGFloat, windowSize: CGSize) {
@@ -60,23 +98,16 @@ class MandelbrotView: MTKView {
     
     override func rightMouseUp(with event: NSEvent) {
         rendererData!.wrappedValue.width *= 1.10
-        self.draw()
     }
     
     override func scrollWheel(with event: NSEvent) {
-        let m_x = rendererData!.wrappedValue.width * -0.004
-        let m_y = rendererData!.wrappedValue.width * rendererData!.wrappedValue.ratio * 0.004
-        rendererData!.wrappedValue.x += (Float(event.scrollingDeltaX) * m_x)
-        rendererData!.wrappedValue.y += (Float(event.scrollingDeltaY) * m_y)
-        self.draw()
+        let dx = Float(event.scrollingDeltaX)
+        let dy = Float(event.scrollingDeltaY)
+        if abs(dy) > 0.1 || abs(dx) > 0.1 {
+            let m_x = rendererData!.wrappedValue.width * -0.001
+            let m_y = rendererData!.wrappedValue.width * rendererData!.wrappedValue.ratio * 0.001
+            rendererData!.wrappedValue.x += dx * m_x
+            rendererData!.wrappedValue.y += dy * m_y
+        }
     }
-    
-//    override func keyUp(with event: NSEvent) {
-//        if(event.keyCode == 24) {
-//            rendererData!.reset()
-//            self.draw()
-//            print(event.keyCode)
-//        }
-//    }
-    
 }

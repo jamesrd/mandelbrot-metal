@@ -9,7 +9,7 @@ import MetalKit
 class Renderer: NSObject, MTKViewDelegate {
     var rendererData: RendererData
     
-    var parent: MandelbrotView2
+    var parent: MandelbrotView
     var metalDevice: MTLDevice!
     var metalCommandQueue: MTLCommandQueue!
     let pipelineState: MTLRenderPipelineState
@@ -19,7 +19,7 @@ class Renderer: NSObject, MTKViewDelegate {
         rendererData.reset()
     }
     
-    init(_ parent: MandelbrotView2) {
+    init(_ parent: MandelbrotView) {
         self.parent = parent
         if let metalDevice = MTLCreateSystemDefaultDevice() {
             self.metalDevice = metalDevice
@@ -59,7 +59,6 @@ class Renderer: NSObject, MTKViewDelegate {
     }
     
     func draw(in view: MTKView) {
-        
         guard let drawable = view.currentDrawable else {
             return
         }
