@@ -15,8 +15,7 @@ struct MandelbrotView: NSViewRepresentable {
     let mtkView: MandelbrotMTKView = MandelbrotMTKView()
     
     // plans:
-    // - Move control of what region to draw to higher level code
-    // - Learn how to correctly develop event handling
+    // - Fix centering and drag selection
     // - Animation??
     // - Live color plotting changes
     
@@ -57,6 +56,12 @@ struct MandelbrotViewModifier: ViewModifier {
                 rendererData.reset()
                 return .handled
             }
+            .onTapGesture { e in
+                print("Tapped \(e)")
+            }
+            .onLongPressGesture {
+                print("Long press")
+            }
             .onAppear(perform: { setupHandlers() })
     }
     
@@ -75,6 +80,8 @@ struct MandelbrotViewModifier: ViewModifier {
             dragStart = nil
             return event
         }
+        
+        print("Mouse up: \(windowSize) at \(event.locationInWindow)")
         
         var z: Float = 0.8
         let end = event.locationInWindow;
@@ -107,7 +114,6 @@ struct MandelbrotViewModifier: ViewModifier {
         rendererData.y += dy * rendererData.width * rendererData.ratio
     }
     
-
     func rightMouseUp(with event: NSEvent) -> NSEvent? {
         rendererData.width *= 1.10
         return event

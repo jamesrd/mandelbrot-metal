@@ -118,6 +118,5 @@ float4 calculateColor_old(int iteration, int max_iter) {
 
 fragment float4 fragmentShader(Fragment input [[stage_in]], const device MandelbrotControl &mc[[buffer(0)]]) {
     int iteration = calculate(input.coords.x, input.coords.y, mc.max_iter);
-//    return calculateColorGrayscale(iteration, mc.iter_steps);
     return calculateColor(iteration, mc.max_iter);
 }

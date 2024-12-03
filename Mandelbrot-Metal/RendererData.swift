@@ -7,7 +7,6 @@
 import SwiftUI
 
 @Observable class RendererData {
-    var redraw: Bool = false
     var x: Float = 0.0
     var y: Float = 0.0
     var width: Float = 0.0
@@ -19,9 +18,9 @@ import SwiftUI
     }
     
     func reset() {
-        x = -0.8
+        x = -0.6
         y = 0.0
-        width = 3.6
+        width = 4.0
         max_iter = 768
     }
 }
